@@ -4,25 +4,29 @@ import random
 import selectors
 import sys
 import time
-import string
 import gzip
 import json
 from dataclasses import dataclass
 from typing import Optional
+from collections import Counter
 
 INITIAL_LIVES = 2
 MAX_LIVES = 3
 WPP = 100
+
 BOMB_TIMER = 5
 # BOMB_TIMER = random.randrange(1, 5)
 
 
-ALPHABET = string.ascii_lowercase
+# not z and not x
+NEW_LIFE_LETTERS = Counter("abcdefghijklmnopqrstuvwy")
+
 
 class ValidationState(enum.Enum):
     NEW_LIFE = enum.auto()
     ACCEPTED = enum.auto()
     REJECT = enum.auto()
+
 
 @dataclass(frozen=True)
 class Infix:
@@ -58,20 +62,20 @@ class BombParty:
         self.wpp = wpp
         self.lives = initial_lives
         self.max_lives = max_lives
-
         self.ist = Ist(infixes, wpp)
-
         self.used: set[str] = set()
+        self.letters = NEW_LIFE_LETTERS.copy()
 
-        self.letters = set(ALPHABET)
+    def _refill_letters(self):
+        self.letters = NEW_LIFE_LETTERS.copy()
 
     def validate(self, word: str, prompt: str) -> ValidationState:
         good = word not in self.used and prompt in word.lower() and word in self.words
 
         if good:
-            self.letters.difference_update(word)
+            self.letters.subtract(word)
             if len(self.letters) == 0:
-                self.letters = set(ALPHABET)
+                self._refill_letters()
                 if self.lives == self.max_lives:
                     return ValidationState.ACCEPTED
 
