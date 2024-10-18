@@ -72,6 +72,11 @@ class BombParty:
             self.letters.difference_update(word)
             if len(self.letters) == 0:
                 self.letters = set(ALPHABET)
+                if self.lives == self.max_lives:
+                    return ValidationState.ACCEPTED
+
+                self.lives += 1
+
                 return ValidationState.NEW_LIFE
             else:
                 return ValidationState.ACCEPTED
@@ -112,11 +117,15 @@ if __name__ == "__main__":
         infix = game.next_prompt()
         prompt = infix.infix
 
+        print(sorted(game.letters))
         print(f"Prompt: {prompt}")
         start = time.perf_counter()
         while time.perf_counter() - start < BOMB_TIMER:
             good = False
             events = sel.select(timeout=0.01)
+            state = None
+            if not events:
+                continue
             for _, _ in events:
                 state = game.validate(input(), prompt)
                 match state:
@@ -128,6 +137,9 @@ if __name__ == "__main__":
                         break
                     case ValidationState.REJECT:
                         print("L")
+
+            if state != ValidationState.REJECT:
+                break
         else:
             print(f"WPP: {infix.wpp}. Examples: {random.sample(infix.words, k=5)}")
             try:
