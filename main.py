@@ -121,8 +121,10 @@ if __name__ == "__main__":
         infix = game.next_prompt()
         prompt = infix.infix
 
-        print(sorted(game.letters))
-        print(f"Prompt: {prompt}")
+        letters_to_get = sorted(k for k, v in game.letters.items() if v > 0)
+        print("Lives:", game.lives)
+        print("Letters:", *letters_to_get)
+        print("Prompt:", prompt)
         start = time.perf_counter()
         while time.perf_counter() - start < BOMB_TIMER:
             good = False
@@ -151,3 +153,5 @@ if __name__ == "__main__":
             except ValueError:
                 print("you lose :(")
                 sys.exit(0)
+
+        print()
