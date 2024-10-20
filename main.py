@@ -12,7 +12,7 @@ from collections import Counter
 
 INITIAL_LIVES = 2
 MAX_LIVES = 3
-WPP = 100
+WPP = 1000
 
 BOMB_TIMER = 5
 # BOMB_TIMER = random.randrange(1, 5)
@@ -20,6 +20,7 @@ BOMB_TIMER = 5
 
 # not z and not x
 NEW_LIFE_LETTERS = Counter("abcdefghijklmnopqrstuvwy")
+
 
 
 class ValidationState(enum.Enum):
@@ -74,6 +75,8 @@ class BombParty:
 
         if good:
             self.letters.subtract(word)
+            self.letters = +self.letters
+
             if len(self.letters) == 0:
                 self._refill_letters()
                 if self.lives == self.max_lives:
